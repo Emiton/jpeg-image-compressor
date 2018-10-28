@@ -4,15 +4,15 @@
 #include "assert.h"
 #include "compress.h"
 
-static void (*compress_or_decompress)(FILE *input) = compress411;
+static void (*compress_or_decompress)(FILE *input) = compress;
 
 int main(int argc, char *argv[]) {
   int i;
   for (i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-c")) {
-      compress_or_decompress = compress411;
+      compress_or_decompress = compress;
     } else if (!strcmp(argv[i], "-d")) {
-      compress_or_decompress = decompress411;
+      compress_or_decompress = decompress;
     } else if (*argv[i] == '-') {
       fprintf(stderr, "%s: unknown option '%s'\n", argv[0], argv[i]);
       exit(1);
