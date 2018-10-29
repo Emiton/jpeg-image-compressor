@@ -1,0 +1,27 @@
+Design Document for Arith
+by Cameron LaFreniere and Emiton Alves
+
+What should the design document do?
+
+Part 1:
+-Describe our overall design
+ - Include Separate descriptions of each component
+ - Components with most of design done for us (need detailed test plan for each of these):
+  - Bitpack
+  - image part 1
+  - image part 2
+  - image part n
+ - Explain how all image components will be implemented together
+ - Create separate designs for each component image 
+
+Part 2:
+- Create overall architecture (ask daniels)
+- Create an architecture of each major component
+ - includes identification of modules, type, and functions by name
+ - sketch types' definitions and functions' specifications in concise, informal English
+ - essentially (what will each function do?)
+
+Part 3:
+- unit testing for each component (testing in isolation) 
+- write down "universal laws" that your program must follow
+ - make sure they work for a variety of inputs
