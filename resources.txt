@@ -1,0 +1,13 @@
+Resources
+
+Bitpacking
+http://www.kinematicsoup.com/news/2016/9/6/data-compression-bit-packing-101
+
+Chromaticity
+https://colorusage.arc.nasa.gov/lum_and_chrom.php
+
+JPEG Compression
+https://arjunsreedharan.org/post/146070390717/jpeg-101-how-does-jpeg-work (Good Overview)
+
+
+Raw Image file will be pixmap 2D array
