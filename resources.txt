@@ -9,5 +9,8 @@ https://colorusage.arc.nasa.gov/lum_and_chrom.php
 JPEG Compression
 https://arjunsreedharan.org/post/146070390717/jpeg-101-how-does-jpeg-work (Good Overview)
 
+PPM Image Format
+http://paulbourke.net/dataformats/ppm/
+http://netpbm.sourceforge.net/doc/ppm.html
 
 Raw Image file will be pixmap 2D array
