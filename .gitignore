@@ -1,0 +1,5 @@
+# Object files
+*.o
+
+# Sample photos for testing
+/photos
