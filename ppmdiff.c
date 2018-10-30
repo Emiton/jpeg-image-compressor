@@ -29,47 +29,60 @@
 //
 //
 #include <string.h>
+#include <pnm.h>
+#include <stdio.h>
+#include <a2plain.h>
+#include <a2methods.h>
+
+double compare(Pnm_ppm image1, Pnm_ppm image2);
+
 int main(int argc, char *argv[])
 {
     FILE *fp1, *fp2;
-    // either - filename
-    //         filename filename
-    //         filename -
-    // BUT NOT - -
-    //
 
     if(!strcmp(argv[1], "-"))
     {
+        fp1 = stdin;
+        fp2 = fopen(argv[2], "r");
+    }
+    else
+    {
         fp1 = fopen(argv[1], "r");
-        
-        if(!strcmp(argv[2], "-"))
-        {
-            fp2 = fopen(argv[2], "r");
-        }
 
-        else
+        if(!strcmp(argv[2], "-"))
         {
             fp2 = stdin;
         }
+        else 
+        {
+            fp2 = fopen(argv[2], "r");
+        }
     }
 
-    else
+    if(fp1 == NULL || fp2 == NULL)
     {
-        fp1 = stdin;
-
-        fp2 = fopen(argv[2], "r");
-
+        // TODO: remove argc 
+        fprintf(stderr, "Could not open files %i\n", argc);
+        return 0;
     }
 
-    if(fp1 == NULL)
-    {
-        printf("File 1 Error\n");
+    Pnm_ppm imgA, imgB;
+    // TODO: solve methods issue
+    A2Methods_T methods = array2_methods_plain->map_row_major; 
+    imgA = Pnm_ppmread(fp1, methods);
+    imgB = Pnm_ppmread(fp2, methods);
+    double difference = compare(imgA, imgB);
+    printf("difference: %f", difference);
+    fclose(fp1);
+    fclose(fp2);
+    printf("We did it!\n");
+    return 0;
+} 
 
-    }
 
-    if(fp2 == NULL)
-    {
-        printf("File 2 Error\n");
-    }
+double compare(Pnm_ppm image1, Pnm_ppm image2)
+{
+    (void) image1;
+    (void) image2;
+    return 0.0;
 }
-
