@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
     Pnm_ppm imgA, imgB;
     // TODO: solve methods issue
-    A2Methods_T methods = array2_methods_plain->map_row_major; 
+    A2Methods_T methods = array2_methods_plain; 
     imgA = Pnm_ppmread(fp1, methods);
     imgB = Pnm_ppmread(fp2, methods);
     double difference = compare(imgA, imgB);
