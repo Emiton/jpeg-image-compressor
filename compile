@@ -17,9 +17,11 @@ esac
 CC=gcc
 
 # compile and link against course software and netpbm library
-CFLAGS="-I. -I/usr/local/cii/include -I/usr/local/include -I/csc/411/include"
+CFLAGS="-I. -I/csc/411/include -I/usr/local/cii/include -I/usr/local/include" # Original
+#CFLAGS="-I -I/csc/411/include -I/usr/local/cii/include -I/usr/local/include" 
 LIBS="-llocality -lcii -lnetpbm -lm"
-LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib"
+LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib" # Original
+#LFLAGS="-L/csc/411/lib -L/usr/local/cii/lib -L/usr/local/lib"
 
 # these flags max out warnings and debug info
 FLAGS="-no-pie -g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic"
@@ -44,8 +46,10 @@ case $link in
                  linked=yes ;;
 esac
 
+#TODO: are the .o files in the right order?
 case $link in 
-    all|ppmdiff) $CC $FLAGS $LFLAGS -o ppmdiff ppmdiff.o $LIBS
+    all|ppmdiff) $CC $FLAGS $LFLAGS -o ppmdiff ppmdiff.o array2.o \
+                                       a2plain.o         $LIBS
                  linked=yes ;;
 esac
 
