@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <a2plain.h>
 #include <a2methods.h>
+#include <assert.h>
 
 double compare(Pnm_ppm image1, Pnm_ppm image2);
 
@@ -65,14 +66,19 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not open files %i\n", argc);
         return 0;
     }
+    // TODO: replace if with these asserts
+    assert(fp1 != NULL);
+    assert(fp2 != NULL);
 
     Pnm_ppm imgA, imgB;
-    // TODO: solve methods issue
-    A2Methods_T methods = array2_methods_plain; 
+    A2Methods_T methods = array2_methods_plain; // default to Array2 methods
+    assert(methods);
+    printf("ABOUT TO READ\n"); 
     imgA = Pnm_ppmread(fp1, methods);
     imgB = Pnm_ppmread(fp2, methods);
+    printf("YOU READ SOMETHING!\n");
     double difference = compare(imgA, imgB);
-    printf("difference: %f", difference);
+    printf("difference: %f\n", difference);
     fclose(fp1);
     fclose(fp2);
     printf("We did it!\n");
@@ -81,8 +87,8 @@ int main(int argc, char *argv[])
 
 
 double compare(Pnm_ppm image1, Pnm_ppm image2)
-{
-    (void) image1;
+{ 
     (void) image2;
-    return 0.0;
+    int w1 = image1->width;
+    return w1;
 }
