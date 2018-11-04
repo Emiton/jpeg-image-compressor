@@ -34,6 +34,7 @@
 #include <a2plain.h>
 #include <a2methods.h>
 #include <assert.h>
+#include <stdlib.h>
 
 double compare(Pnm_ppm image1, Pnm_ppm image2);
 
@@ -88,7 +89,20 @@ int main(int argc, char *argv[])
 
 double compare(Pnm_ppm image1, Pnm_ppm image2)
 { 
-    (void) image2;
     int w1 = image1->width;
+    int w2 = image2->width;
+    int h1 = image1->height;
+    int h2 = image2->height;
+
+    if(abs(w1 - w2) > 1 || abs(h1 - h2) > 1)
+    {
+        fprintf(stderr, "File difference too great\n");
+        return 0; // TODO: change to EXIT?
+    }
+    else
+    {
+        printf("SHIT WORKED!\n");
+    }
+
     return w1;
 }
