@@ -1,8 +1,5 @@
 # Object files
 *.o
 
-# Sample photos for testing
-/photos
-
 # Header files made easier to view
 /reference
