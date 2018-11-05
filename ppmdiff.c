@@ -2,48 +2,31 @@
  * Filename: ppmdiff
  * Authors: Emiton Alves and Cameron LaFreniere
  * Creation Date: 10-22-18
+ *
+ * Description: Compares two images of similar size and computes the difference
+ *              using the root mean square difference
 */
 
-
-// get image input
-    // one image can come from directory
-    // another image can come from stdin
-    // read image 1 into I 
-    // read image 2 into I'
-// check difference in height
-    // if diff > 1, return error -> print 1.0 to stdout
-// check difference in width
-    // if difference > 1 return error -> print 1.0 to stdout
-
-// Compute root mean square difference (E)
-// Check if images use same scale for RGB values
-    // loop through each pixel 
-    // get difference between RGB values
-    // square differences
-    // add the squares
-    // add this new sum to the total value
-// Divide total by 3 x w x h
-// Square the current value
-// Print E to stdout with 4 digits after decimal
-//
-//
-//
-#include <string.h>
+#include <a2methods.h>
+#include <a2plain.h>
+#include <assert.h>
+#include <math.h>
 #include <pnm.h>
 #include <stdio.h>
-#include <a2plain.h>
-#include <a2methods.h>
-#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 double compare(Pnm_ppm image1, Pnm_ppm image2, A2Methods_T methods);
 int get_min(int a, int b);
+double square(double num);
 
 int main(int argc, char *argv[])
 {
     FILE *fp1, *fp2;
+    (void) argc;
 
     if(!strcmp(argv[1], "-"))
+        
     {
         fp1 = stdin;
         fp2 = fopen(argv[2], "r");
@@ -63,63 +46,76 @@ int main(int argc, char *argv[])
     }
 
     if(fp1 == NULL || fp2 == NULL)
-    {
-        // TODO: remove argc 
-        fprintf(stderr, "Could not open files %i\n", argc);
-        return 0;
+    { 
+        fprintf(stderr, "Could not open files\n");
+        exit (EXIT_FAILURE);
     }
-    // TODO: replace if with these asserts
-    assert(fp1 != NULL);
-    assert(fp2 != NULL);
-
+    
     Pnm_ppm imgA, imgB;
     A2Methods_T methods = array2_methods_plain; // default to Array2 methods
-    assert(methods);
-    printf("ABOUT TO READ\n"); 
+    assert(methods); 
     imgA = Pnm_ppmread(fp1, methods);
-    imgB = Pnm_ppmread(fp2, methods);
-    printf("YOU READ SOMETHING!\n");
-    double difference = compare(imgA, imgB, methods);
-    printf("difference: %f\n", difference);
     fclose(fp1);
+    imgB = Pnm_ppmread(fp2, methods);
     fclose(fp2);
-    printf("We did it!\n");
+    double difference = compare(imgA, imgB, methods);
+    printf("difference: %.4lf\n", difference); 
     return 0;
 } 
 
-
+// Compares the difference in RGB values between 2 photos of similar size
+// Uses Root Mean Square to compute difference
 double compare(Pnm_ppm image1, Pnm_ppm image2, A2Methods_T methods)
 { 
     int w1 = image1->width;
     int w2 = image2->width;
     int h1 = image1->height;
     int h2 = image2->height;
-    int r, g, b;
+    
+    // If image width or height diff is greater than 1, terminate program
     if(abs(w1 - w2) > 1 || abs(h1 - h2) > 1)
     {
         fprintf(stderr, "File difference too great\n");
         exit (EXIT_FAILURE);
     }
-
+   double r1, g1, b1, r2, b2, g2;
+   // smaller width and height usedto compare images
    int width = get_min(w1, w2);
    int height = get_min(h1, h2);
-   A2Methods_Array2 pixels = image1->pixels;
-    // Accessing pixels
+   A2Methods_Array2 pixmap1 = image1->pixels;
+   A2Methods_Array2 pixmap2 = image2->pixels;
+   
+   double sum = 0;
+    // Get the difference in rgb values between corresponding pixels in both photos 
     for(int row = 0; row < height ; row++ )
     {
         for(int col = 0; col < width; col++)
         {
-            Pnm_rgb temp = (Pnm_rgb)methods->at(pixels, col, row);
-            r = temp->red;
-            g = temp->green;
-            b = temp->blue;
-            printf("RED: %i BLUE:%i GREEN:%i\n",r,g,b);
+            Pnm_rgb temp1 = (Pnm_rgb)methods->at(pixmap1, col, row);
+            Pnm_rgb temp2 = (Pnm_rgb)methods->at(pixmap2, col, row);
+
+            r1 = (double)temp1->red;
+            g1 = (double)temp1->green;
+            b1 = (double)temp1->blue;
+
+            r2 = (double)temp2->red;
+            g2 = (double)temp2->green;
+            b2 = (double)temp2->blue;
+
+            double rdiff = square(r1-r2);
+            double gdiff = square(g1-g2);
+            double bdiff = square(b1-b2);
+            
+            sum = sum + rdiff + gdiff + bdiff; 
         }
     }
 
-    return w1;
+    double total = sum / (3 * width * height);
+    total = sqrt(total);
+    return total;
 }
 
+// Returns the minimum value between two integers
 int get_min(int a, int b)
 {
     int min;
@@ -133,4 +129,10 @@ int get_min(int a, int b)
     }
 
     return min;
+}
+
+// Squares a floating point value
+double square(double num)
+{
+    return (num*num);
 }
