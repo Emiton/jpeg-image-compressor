@@ -4,11 +4,12 @@ typedef struct rgb_float {
     float r, g, b;
 } *rgb_float;
 
-//TODO: make return type A2.
-void scaledIntToFloat(Pnm_ppm img)
+A2 scaledIntToFloat(A2 pixmap, float denom)
 {
-    float denom = (float) img->denominator;
     printf("DENOM: %f\n", denom);
-    (void) img;
-    printf("vegan soup\n"); 
+    //rgb_float temp;
+    //temp->r = ((float) img->red) / denom;
+    //temp->g = ((float) img->green) / denom;
+    //temp->b = ((float) img->blue) / denom;
+    return pixmap;
 }   

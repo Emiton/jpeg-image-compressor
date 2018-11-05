@@ -5,6 +5,5 @@
 
 typedef A2Methods_Array2 A2;
 
-//TODO: make return type A2.
-void scaledIntToFloat(Pnm_ppm img);
+A2 scaledIntToFloat(A2 pixmap, float denom);
 

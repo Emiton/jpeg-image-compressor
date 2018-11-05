@@ -6,10 +6,11 @@
 
 extern void compress(FILE *input)
 {
-    (void) input;
     A2Methods_T methods = array2_methods_plain;
     Pnm_ppm img = Pnm_ppmread(input, methods);
-    scaledIntToFloat(img);    
+    A2 pixmap = img->pixels;
+    float denom = img->denominator;
+    scaledIntToFloat(pixmap, denom);
 }
 
 extern void decompress(FILE *input)
