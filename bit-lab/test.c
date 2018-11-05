@@ -33,8 +33,11 @@ int main()
 int check_laws(uint64_t word, unsigned w, unsigned lsb, unsigned value, unsigned w2, unsigned lsb2)
 {
     TRY
-        assert(/*value can fit within width of field*/);
-        assert(/*value at given lsb does not pass the bounds of the word*/);
+        assert(Bitpack_getu(Bitpack_newu(word, w, lsb, val), w, lsb) == val);
+        if(lsb2 >= w + lsb)
+        {
+            assert(getu(newu(word, w, lsb, val), w2, lsb2) == getu(word, w2, lsb2));
+        }
        // LAWS FROM BIT PACK HANDOUT
        // Law 1: 
        // Law 2: non overlapping fields should not be affected
