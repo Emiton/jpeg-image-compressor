@@ -1,3 +1,5 @@
+#include "rgbComponentConversions.h"
+
 //TODO: make return type A2.
 void scaledIntToFloat(Pnm_ppm img)
 {
