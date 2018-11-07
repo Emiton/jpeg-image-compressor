@@ -6,6 +6,7 @@
 
 #define A2 A2Methods_Array2
 
+// TODO: Trim image
 extern void compress(FILE *input)
 {
     A2Methods_T methods = array2_methods_plain;
@@ -15,7 +16,7 @@ extern void compress(FILE *input)
      
     A2 rgbFloatArray = scaledIntToFloat(img);
     A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
-    (void) ybrFloatArray;
+    A2 someFunc(ybrFloatArray);
 }
 
 extern void decompress(FILE *input)
