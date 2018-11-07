@@ -12,7 +12,6 @@ extern void compress(FILE *input)
     Pnm_ppm img = Pnm_ppmread(input, methods);
     
     A2 a2Temp = scaledIntToFloat(img);
-    (void) a2Temp;
     int h = img->height;
     int w = img->width;
     int i = 0; // REMOVE
@@ -24,8 +23,8 @@ extern void compress(FILE *input)
            //printf("ABOUT TO PRINT: \n"); 
            //Pnm_rgb rgbTemp = (Pnm_rgb) methods->at(img->pixels, col, row);
            //printf("R: %i, G: %i, B: %i\n", rgbTemp->red, rgbTemp->green, rgbTemp->blue); 
-           //rgb_float floatTemp = (rgb_float) methods->at(a2Temp, col, row);
-           //printf("R: %f, G: %f, B: %f\n", floatTemp->r, floatTemp->g, floatTemp->b);
+           rgb_float floatTemp = (rgb_float) methods->at(a2Temp, col, row);
+           printf("CHECK COMPRESS: %f, G: %f, B: %f\n", floatTemp->r, floatTemp->g, floatTemp->b);
            i++;
         }
     }
