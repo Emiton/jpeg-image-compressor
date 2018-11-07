@@ -1,5 +1,7 @@
 #include "rgbComponentConversions.h"
 #include <string.h>
+
+#define A2 A2Methods_Array2
 /*
 A2 scaledIntToFloat(Pnm_ppm img)
 {
@@ -85,9 +87,12 @@ extern A2 scaledIntToFloat(Pnm_ppm img)
             //memcpy(methods->at(floatMap, col, row), floatTemp, mySize);
             // TODO: use Array2_at??
             *(rgb_float*)Array2_at(floatMap, col, row) = floatTemp;
+            rgb_float floatChecker = (rgb_float) methods->at(floatMap, col, row);
+            printf("CHECK A2--> RED: %f GREEN: %f BLUE: %f\n", floatChecker->r, floatChecker->g, floatChecker->b);
+
         }
     }
 
      return floatMap;
 }
-
+#undef A2
