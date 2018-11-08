@@ -1,6 +1,6 @@
 // TODO: pass in methods to files
 #include "rgbComponentConversions.h"
-#include <string.h>
+#include <string.h> // TODO: remove
 
 #define A2 A2Methods_Array2
 
