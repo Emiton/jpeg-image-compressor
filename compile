@@ -19,7 +19,7 @@ CC=gcc
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/csc/411/include -I/usr/local/cii/include -I/usr/local/include" # Original
 #CFLAGS="-I -I/csc/411/include -I/usr/local/cii/include -I/usr/local/include" 
-LIBS="-llocality -lcii -lnetpbm -lm"
+LIBS="-llocality -lcii -larith -lnetpbm -lm"
 LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib" # Original
 #LFLAGS="-L/csc/411/lib -L/usr/local/cii/lib -L/usr/local/lib"
 
@@ -42,7 +42,10 @@ done
 # link together .o files + libraries to make executable binaries
 # using one case statement per executable binary
 case $link in 
-    all|image) $CC $FLAGS $LFLAGS -o image image.o compress.o rgbComponentConversions.o array2.o a2plain.o $LIBS # TODO: Put all on one line 
+    all|image) $CC $FLAGS $LFLAGS -o image image.o compress.o                  \
+                                     rgbComponentConversions.o                 \
+                                     dctQuantConversions.o array2.o a2plain.o  \
+                                     $LIBS 
                  linked=yes ;;
 esac
 
