@@ -1,3 +1,6 @@
+#ifndef _RGBCOMPONENTCONVERSIONSH_
+#define _RGBCOMPONENTCONVERSIONSH_
+
 #include <a2methods.h>
 #include <a2plain.h>
 #include "pnm.h"
@@ -18,3 +21,4 @@ typedef struct ybr_float {
 extern A2 scaledIntToFloat(Pnm_ppm img);
 extern A2 rgbFloatToYbrFloat(A2 rgbFloatArray, int h, int w);
 #undef A2
+#endif
