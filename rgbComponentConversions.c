@@ -106,8 +106,8 @@ extern A2 ybrFloatToRgbFloat(A2 ybrFloatMap)
             rgbFloatTemp->g = 1.0 * y - 0.344136 * Pb - 0.714136 * Pr;
             rgbFloatTemp->b = 1.0 * y + 1.772 * Pb + 0.0 * Pr;
             printf("RGB FLOAT VALUES: R: %f, G: %f, B: %f\n", rgbFloatTemp->r, rgbFloatTemp->g, rgbFloatTemp->b);
-    }
-    
+        }
+    } 
     return rgbFloatMap;
 }
 
@@ -134,14 +134,14 @@ extern A2 rgbFloatToScaledInt(A2 rgbFloatMap)
         {
             rgb_float floatTemp = (rgb_float) methods->at(rgbFloatMap, col, row);
             rgb_int intTemp = (rgb_int) methods->at(rgbIntMap, col, row);
-            intTemp->r = (int) ((floatTemp->r) * denom);
-            intTemp->g = (int) ((floatTemp->g) * denom);
-            intTemp->b = (int) ((floatTemp->b) * denom);
+            intTemp->r = (int) roundf(((floatTemp->r) * denom));
+            intTemp->g = (int) roundf(((floatTemp->g) * denom));
+            intTemp->b = (int) roundf(((floatTemp->b) * denom));
             printf("RGB SCALED INT  VALUES: R: %i, G: %i, B: %i\n", intTemp->r, intTemp->g, intTemp->b);
         }
     }
 
-     return intMap;
+     return rgbIntMap;
 }
 
 #undef A2

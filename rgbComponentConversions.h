@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <array2.h>
-
+#include <math.h>
 #define A2 A2Methods_Array2
 
 typedef struct rgb_float {
