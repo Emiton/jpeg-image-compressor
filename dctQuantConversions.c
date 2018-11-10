@@ -136,4 +136,109 @@ signed quantizeBCDcoefficients(float coeff)
    return roundf(coeff * 50.0); 
 }
 
+extern A2 expand(A2 quantArray)
+{
+    assert(quantArray);
+    int height = Array2_height(quantArray);
+    int width = Array2_width(quantArray);
+    A2 YBRmap = methods->new(methods->width(width * 2), methods->height(height * 2), sizeof(struct ybr_float));
+    for(int row = 0; row < height; row ++)
+    {
+        for(int col = 0; col < width; col ++)
+        {
+            quantizedValues incomingValues = methods->at(quantArray, col, row);
+            reducedValues reducedTemp;
+
+            reducedTemp->a = dequantizeAcoefficient(incomingValues->a);
+            reducedTemp->b = dequantizeBCDcoefficient(incomingValues->b);
+            reducedTemp->c = dequantizeBCDcoefficient(incomingValues->c);
+            reducedTemp->d = dequantizeBCDcoefficient(incomingValues->d);
+            reducedTemp->avgPb = dequantizeColorDifference(incomingValues->avgPb);
+            reducedTemp->avgPr = dequantizeColorDifference(incomingValues->avgPr);
+
+            // TODO: Is this the correct ordering?
+            ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, col * 2, row * 2);
+            ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, 1 + col * 2, row * 2);
+            ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, col * 2, 1 + row * 2);
+            ybr_float ybrTemp4 = (ybr_float) methods->at(YBRmap, 1 + col * 2, 1 + row * 2);
+
+            ybrTemp1->y = inverseDCT(1, reducedTemp->a,
+                                        reducedTemp->b,
+                                        reducedTemp->c,
+                                        reducedTemp->d);
+            
+            ybrTemp2->y = inverseDCT(2, reducedTemp->a,
+                                        reducedTemp->b,
+                                        reducedTemp->c,
+                                        reducedTemp->d);
+
+            ybrTemp1->3 = inverseDCT(3, reducedTemp->a,
+                                        reducedTemp->b,
+                                        reducedTemp->c,
+                                        reducedTemp->d);
+
+            ybrTemp4->y = inverseDCT(4, reducedTemp->a,
+                                        reducedTemp->b,
+                                        reducedTemp->c,
+                                        reducedTemp->d);
+
+            ybrTemp1->Pb = reducedTemp->avgPb;
+            ybrTemp1->Pr = reducedTemp->avgPr;
+
+            ybrTemp2->Pb = reducedTemp->avgPb;
+            ybrTemp2->Pr = reducedTemp->avgPr;
+
+            ybrTemp3->Pb = reducedTemp->avgPb;
+            ybrTemp3->Pr = reducedTemp->avgPr;
+
+            ybrTemp4->Pb = reducedTemp->avgPb;
+            ybrTemp4->Pr = reducedTemp->avgPr;
+        }
+    }
+}
+
+// TODO: Should there be any tests for the dequantization of values?
+
+float dequantizeColorDifference(unsigned index)
+{
+    return Arith_chroma_of_index(index);
+}
+
+float dequantizeAcoefficient(signed a)
+{
+    return roundf(coeff / 511.0);
+}
+
+float dequantizeBCDcoefficient(signed coeff)
+{
+    return roundf(coeff / 50.0);
+}
+
+float inverseDCT(int y, float a, float, b, float c, float d)
+{
+    float luminanceValue;
+    switch(y) 
+    {
+        case 1: 
+            luminanceValue = a - b - c + d;
+            break;
+        case 2: 
+            luminanceValue = a - b + c - d;
+            break;
+        case 3: 
+            luminanceValue = a + b - c - d;
+            break;
+        case 4: 
+            luminanceValue = a + b + c + d;
+            break;
+        default:
+            fprintf(stderr, "Incorrect Y value chosen\n");
+            luminanceValue = -1.0;
+            exit(EXIT_FAILURE);
+            break;
+    }
+
+    return luminanceValue;
+}
+
 #undef A2
