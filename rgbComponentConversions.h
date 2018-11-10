@@ -20,5 +20,8 @@ typedef struct ybr_float {
 
 extern A2 scaledIntToFloat(Pnm_ppm img);
 extern A2 rgbFloatToYbrFloat(A2 rgbFloatArray, int h, int w);
+
+extern A2 ybrFloatToRgbFloat(A2 ybrFloatMap);
+extern A2 rgbFloatToScaledInt(A2 rgbFloatMap);
 #undef A2
 #endif
