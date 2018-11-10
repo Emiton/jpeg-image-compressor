@@ -8,13 +8,18 @@
  *              are also included within this file.
 */
 #include "dctQuantConversions.h"
-
+#include <math.h>
 #define A2 A2Methods_Array2
 
 // TODO: pass methods to all helper functions from compress
 //
 // TODO: rename this struct and place in header file
 // TODO: what types are a, b, c, and d? a needs to be 9 bits, the rest: 5 bits
+
+float discreteCosineTransform(char coefficient, float y1, float y2, float y3, float y4);
+unsigned quantizeColorDifference(float chroma);
+signed quantizeAcoefficient(float coeff);
+signed quantizeBCDcoefficients(float coeff);
 
 extern A2 reduce(A2 componentArray, int height, int width)
 {
@@ -32,7 +37,6 @@ extern A2 reduce(A2 componentArray, int height, int width)
     {
         for(int col = 0; col < width; col+=2)
         {
-            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col / blockSize, row / blockSize);
             ybr_float ybrTemp1 = (ybr_float) methods->at(componentArray, col, row);
             ybr_float ybrTemp2 = (ybr_float) methods->at(componentArray, col + 1, row);
             ybr_float ybrTemp3 = (ybr_float) methods->at(componentArray, col, row + 1);
@@ -50,10 +54,16 @@ extern A2 reduce(A2 componentArray, int height, int width)
             reducedTemp.b = discreteCosineTransform('b', y1, y2, y3, y4);
             reducedTemp.c = discreteCosineTransform('c', y1, y2, y3, y4);
             reducedTemp.d = discreteCosineTransform('d', y1, y2, y3, y4);
-
+            
+            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col / blockSize, row / blockSize);
             quantTemp->avgPb = quantizeColorDifference(reducedTemp.avgPb);
             quantTemp->avgPr = quantizeColorDifference(reducedTemp.avgPr);
-            
+            quantTemp->a = quantizeAcoefficient(reducedTemp.a);
+            quantTemp->b = quantizeBCDcoefficients(reducedTemp.b);
+            quantTemp->c = quantizeBCDcoefficients(reducedTemp.c);
+            quantTemp->d = quantizeBCDcoefficients(reducedTemp.d);
+            //TODO: Is a also of type signed?
+
             // TODO: create int array with values [-15 to 15] 
             //      multiply b, c, and d each by 50
             //      see which value within the array that it comes closest to
@@ -105,6 +115,25 @@ unsigned quantizeColorDifference(float chroma)
     }
 
     return Arith_index_of_chroma(chroma); 
+}
+
+signed quantizeAcoefficient(float coeff)
+{
+    // 2^9 - 1 = 511, based on number of bits used to hold 'a'
+    return roundf(coeff * 511.0);
+}
+
+signed quantizeBCDcoefficients(float coeff)
+{
+   if(coeff > 0.3)
+   {
+        coeff = 0.3;
+   }
+   else if (coeff < -0.3)
+   {
+       coeff = -0.3;
+   }
+   return roundf(coeff * 50.0); 
 }
 
 #undef A2
