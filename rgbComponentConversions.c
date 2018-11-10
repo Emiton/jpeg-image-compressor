@@ -69,7 +69,7 @@ extern A2 rgbFloatToYbrFloat(A2 rgbFloatArray, int h, int w)
             ybrFloatTemp->y = 0.299 * red + 0.587 * green + 0.114 * blue;
             ybrFloatTemp->Pb = -0.168736 * red - 0.331264 * green + 0.5 * blue;
             ybrFloatTemp->Pr = 0.5 * red - 0.418688 * green - 0.081312 * blue;
-            printf("YBR VALUES: Y: %f, B: %f, R: %f\n", ybrFloatTemp->y, ybrFloatTemp->Pb, ybrFloatTemp->Pr);
+            //printf("YBR VALUES: Y: %f, B: %f, R: %f\n", ybrFloatTemp->y, ybrFloatTemp->Pb, ybrFloatTemp->Pr);
         }
     }
     
@@ -86,7 +86,7 @@ extern A2 ybrFloatToRgbFloat(A2 ybrFloatMap)
     
     A2Methods_T methods = array2_methods_plain;
 
-    A2 rgb_floatMap = methods->new(methods->width(ybrFloatMap),
+    A2 rgbFloatMap = methods->new(methods->width(ybrFloatMap),
                              methods->height(ybrFloatMap),
                              sizeof(struct rgb_float));
    
@@ -94,23 +94,54 @@ extern A2 ybrFloatToRgbFloat(A2 ybrFloatMap)
     {
         for(int col = 0; col < w; col++)
         {
-            ybr_float ybrFloatTemp = (ybr_float) methods->at(ybrMap, col, row);
-            rgb_float rgbFloatTemp = (rgb_float) methods->at(rgbFloatArray, col, row);
+            ybr_float ybrFloatTemp = (ybr_float) methods->at(ybrFloatMap, col, row);
+            rgb_float rgbFloatTemp = (rgb_float) methods->at(rgbFloatMap, col, row);
             
             float y = ybrFloatTemp->y;
             float Pb = ybrFloatTemp->Pb;
             float Pr = ybrFloatTemp->Pr;
             
-            rgbFloatTemp->y = 0.299 * red + 0.587 * green + 0.114 * blue;
             
-            rgbFloatTemp->r = 1.0 * y + 0.0      * pb + 1.402    * pr;
-             rgbFloatTemp->Pb = -0.168736 * red - 0.331264 * green + 0.5 * blue;
-            rgbFloatTemp->Pr = 0.5 * red - 0.418688 * green - 0.081312 * blue;
-            printf("YBR VALUES: Y: %f, B: %f, R: %f\n", ybrFloatTemp->y, ybrFloatTemp->Pb, ybrFloatTemp->Pr);
-        }
+            rgbFloatTemp->r = 1.0 * y + 0.0 * Pb + 1.402 * Pr;
+            rgbFloatTemp->g = 1.0 * y - 0.344136 * Pb - 0.714136 * Pr;
+            rgbFloatTemp->b = 1.0 * y + 1.772 * Pb + 0.0 * Pr;
+            printf("RGB FLOAT VALUES: R: %f, G: %f, B: %f\n", rgbFloatTemp->r, rgbFloatTemp->g, rgbFloatTemp->b);
     }
     
-    return ybrMap;
+    return rgbFloatMap;
+}
+
+extern A2 rgbFloatToScaledInt(A2 rgbFloatMap)
+{
+    assert(rgbFloatMap);
+    int h = Array2_height(rgbFloatMap);
+    assert(h > 0);
+    int w = Array2_width(rgbFloatMap);
+    assert(w > 0);
+    //TODO: denom will be 255
+    float denom = 255.0;
+    
+    //assert(pixmap); // TODO: check this out later
+    
+    A2Methods_T methods = array2_methods_plain;
+
+    A2 rgbIntMap = methods->new(methods->width(rgbFloatMap), 
+                               methods->height(rgbFloatMap), 
+                               sizeof(struct rgb_int));
+    for(int row = 0; row < h; row++)
+    {
+        for(int col = 0; col < w; col++)
+        {
+            rgb_float floatTemp = (rgb_float) methods->at(rgbFloatMap, col, row);
+            rgb_int intTemp = (rgb_int) methods->at(rgbIntMap, col, row);
+            intTemp->r = (int) ((floatTemp->r) * denom);
+            intTemp->g = (int) ((floatTemp->g) * denom);
+            intTemp->b = (int) ((floatTemp->b) * denom);
+            printf("RGB SCALED INT  VALUES: R: %i, G: %i, B: %i\n", intTemp->r, intTemp->g, intTemp->b);
+        }
+    }
+
+     return intMap;
 }
 
 #undef A2

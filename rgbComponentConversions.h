@@ -18,6 +18,10 @@ typedef struct ybr_float {
     float y, Pb, Pr;
 } *ybr_float;
 
+typedef struct rgb_int {
+    int r, g, b;
+} *rgb_int;
+
 extern A2 scaledIntToFloat(Pnm_ppm img);
 extern A2 rgbFloatToYbrFloat(A2 rgbFloatArray, int h, int w);
 
