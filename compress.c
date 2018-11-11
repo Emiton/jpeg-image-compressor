@@ -20,9 +20,42 @@ extern void compress(FILE *input)
     A2 quantizedArray = reduce(ybrFloatArray, h, w);
     (void) quantizedArray;
 }
-
+/*
 extern void decompress(FILE *input)
 {
-    (void) input;     
+   // A2Methods_T methods = array2_methods_plain;
+   // A2 ybrFloatArray = expand((void) input;     
+   (void) input;
+}
+*/
+extern void decompress(FILE *input)
+{    
+    A2Methods_T methods = array2_methods_plain;
+    Pnm_ppm img = Pnm_ppmread(input, methods);
+    int h = img->height;
+    int w = img->width;
+    // stage 1 compress
+    A2 rgbFloatArrayC = scaledIntToFloat(img); 
+    // stage 2 compress
+    A2 ybrFloatArrayC = rgbFloatToYbrFloat(rgbFloatArrayC, h, w);    
+    // stage 3 compress
+    A2 quantizedArrayC = reduce(ybrFloatArrayC, h, w);
+
+
+    // stage 3 decompress
+    A2 ybrFloatArrayD = expand(quantizedArrayC);
+    // stage 2 decompress
+    A2 rgbFloatArrayD = ybrFloatToRgbFloat(ybrFloatArrayD);
+    // stage 1 decompress
+    A2 scaledIntArrayD = rgbFloatToScaledInt(rgbFloatArrayD);
+    
+    struct Pnm_ppm returnImg;
+    returnImg.width = w;
+    returnImg.height = h;
+    returnImg.denominator = 255;
+    returnImg.pixels = scaledIntArrayD;
+    returnImg.methods = methods;
+    
+    Pnm_ppmwrite(stdout, &returnImg);
 }
 #undef A2

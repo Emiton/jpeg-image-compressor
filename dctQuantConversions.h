@@ -22,4 +22,5 @@ typedef struct reducedValues {
 extern A2 reduce(A2 componentArray, int height, int width);
 float discreteCosineTransform(char coefficient, float y1, float y2, float y3, float y4);
 unsigned quantizeColorDifference(float chroma);
+extern A2 expand(A2 quantArray);
 #undef A2

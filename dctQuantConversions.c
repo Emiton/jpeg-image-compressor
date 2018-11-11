@@ -24,7 +24,7 @@ float dequantizeColorDifference(unsigned index);
 float dequantizeAcoefficient(signed a);
 float dequantizeBCDcoefficient(signed coeff);
 float inverseDCT(int y, float a, float b, float c, float d);
-
+extern A2 expand(A2 quantArray);
 
 extern A2 reduce(A2 componentArray, int height, int width)
 {
