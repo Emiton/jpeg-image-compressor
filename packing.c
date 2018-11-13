@@ -39,7 +39,8 @@ extern A2 pack(A2 quantMap)
             word = Bitpack_newu(word, 4, 4, Pb);
             word = Bitpack_newu(word, 4, 0, Pr);
         }
-    }        
+    }
+    return wordMap;    
             
 }
 
@@ -70,6 +71,8 @@ extern A2 unpack(A2 wordMap)
             quantizedTemp->Pr = Bitpack_getu(word, 4, 0); 
         }
     }        
+
+    return quantMap;
             
 }
 
