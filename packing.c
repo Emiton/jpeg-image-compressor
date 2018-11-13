@@ -64,7 +64,7 @@ extern A2 unpack(A2 wordMap)
         for(int col = 0; col < width; col++)
         {
             uint64_t word = (uint64_t) methods->at(wordMap, col, row);
-           
+            // TODO: Print word
             quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col, row);
 
             quantTemp->a = Bitpack_getu(word, 9, 23);
