@@ -18,13 +18,13 @@
 
 float discreteCosineTransform(char coefficient, float y1, float y2, float y3, float y4);
 unsigned quantizeColorDifference(float chroma);
-signed quantizeAcoefficient(float coeff);
+unsigned quantizeAcoefficient(float coeff);
 signed quantizeBCDcoefficients(float coeff);
 float dequantizeColorDifference(unsigned index);
-float dequantizeAcoefficient(signed a);
+float dequantizeAcoefficient(unsigned a);
 float dequantizeBCDcoefficient(signed coeff);
 float inverseDCT(int y, float a, float b, float c, float d);
-
+extern A2 expand(A2 quantArray);
 
 extern A2 reduce(A2 componentArray, int height, int width)
 {
@@ -47,35 +47,28 @@ extern A2 reduce(A2 componentArray, int height, int width)
             ybr_float ybrTemp3 = (ybr_float) methods->at(componentArray, col, row + 1);
             ybr_float ybrTemp4 = (ybr_float) methods->at(componentArray, col + 1, row + 1 );
             
-            reducedValues reducedTemp;//TODO = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            reducedValues reducedTemp;
             reducedTemp.avgPb = (ybrTemp1->Pb + ybrTemp2->Pb + ybrTemp3->Pb + ybrTemp4->Pb) / 4.0;
             reducedTemp.avgPr = (ybrTemp1->Pr + ybrTemp2->Pr + ybrTemp3->Pr + ybrTemp4->Pr) / 4.0;
             float y1 = ybrTemp1->y;
             float y2 = ybrTemp2->y;
             float y3 = ybrTemp3->y;
             float y4 = ybrTemp4->y;
-
+            
             reducedTemp.a = discreteCosineTransform('a', y1, y2, y3, y4);
             reducedTemp.b = discreteCosineTransform('b', y1, y2, y3, y4);
             reducedTemp.c = discreteCosineTransform('c', y1, y2, y3, y4);
             reducedTemp.d = discreteCosineTransform('d', y1, y2, y3, y4);
-            
-            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col / blockSize, row / blockSize);
+ 
+            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap,(col / blockSize),(row / blockSize));
+ 
             quantTemp->avgPb = quantizeColorDifference(reducedTemp.avgPb);
             quantTemp->avgPr = quantizeColorDifference(reducedTemp.avgPr);
             quantTemp->a = quantizeAcoefficient(reducedTemp.a);
             quantTemp->b = quantizeBCDcoefficients(reducedTemp.b);
             quantTemp->c = quantizeBCDcoefficients(reducedTemp.c);
             quantTemp->d = quantizeBCDcoefficients(reducedTemp.d);
-            //TODO: Is a also of type signed?
-
-            // TODO: create int array with values [-15 to 15] 
-            //      multiply b, c, and d each by 50
-            //      see which value within the array that it comes closest to
-            //      TODO: // store the index value closest to b, c, and d OR actual value
-            //      convert this integer to a signed binary value
-            //      store in quantTemp as a 5 bit signed binary value
-        }
+       }
     }
     
     return quantMap;
@@ -87,20 +80,23 @@ float discreteCosineTransform(char coefficient, float y1, float y2, float y3, fl
     switch(coefficient) 
     {
         case 'a': 
-            computedCoefficient = (y4 + y3 + y2 + y1) / 4.0;
+            computedCoefficient = (y4 + y3 + y2 + y1) / 4.0; 
+           // printf("computed Coefficient A:%f\n", computedCoefficient);
             break;
         case 'b': 
             computedCoefficient = (y4 + y3 - y2 - y1) / 4.0;
+           // printf("computed Coefficient B:%f\n", computedCoefficient);
             break;
         case 'c': 
             computedCoefficient = (y4 - y3 + y2 - y1) / 4.0;
+           // printf("computed Coefficient C:%f\n", computedCoefficient);
             break;
         case 'd': 
             computedCoefficient = (y4 - y3 - y2 + y1) / 4.0;
+           // printf("computed Coefficient D:%f\n", computedCoefficient);
             break;
         default:
             fprintf(stderr, "Incorrect Coefficient\n");
-            computedCoefficient = -1.0;
             exit(EXIT_FAILURE);
             break;
     }
@@ -122,7 +118,7 @@ unsigned quantizeColorDifference(float chroma)
     return Arith_index_of_chroma(chroma); 
 }
 
-signed quantizeAcoefficient(float coeff)
+unsigned quantizeAcoefficient(float coeff)
 {
     // 2^9 - 1 = 511, based on number of bits used to hold 'a'
     return roundf(coeff * 511.0);
@@ -138,7 +134,8 @@ signed quantizeBCDcoefficients(float coeff)
    {
        coeff = -0.3;
    }
-   return roundf(coeff * 50.0); 
+   
+   return roundf(coeff * 50.0);
 }
 
 extern A2 expand(A2 quantArray)
@@ -147,7 +144,8 @@ extern A2 expand(A2 quantArray)
     int height = Array2_height(quantArray);
     int width = Array2_width(quantArray);
     A2Methods_T methods = array2_methods_plain;
-    A2 YBRmap = methods->new(width * 2 , height * 2, sizeof(struct ybr_float));
+    A2 YBRmap = methods->new((width * 2) , (height * 2), sizeof(struct ybr_float));
+    
     for(int row = 0; row < height; row ++)
     {
         for(int col = 0; col < width; col ++)
@@ -161,12 +159,11 @@ extern A2 expand(A2 quantArray)
             reducedTemp.d = dequantizeBCDcoefficient(incomingValues->d);
             reducedTemp.avgPb = dequantizeColorDifference(incomingValues->avgPb);
             reducedTemp.avgPr = dequantizeColorDifference(incomingValues->avgPr);
-
-            // TODO: Is this the correct ordering?
-            ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, col * 2, row * 2);
-            ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, 1 + col * 2, row * 2);
-            ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, col * 2, 1 + row * 2);
-            ybr_float ybrTemp4 = (ybr_float) methods->at(YBRmap, 1 + col * 2, 1 + row * 2);
+            
+            ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, (col * 2), (row * 2));
+            ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, (1 + col * 2), (row * 2));
+            ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, (col * 2), (1 + row * 2));
+            ybr_float ybrTemp4 = (ybr_float) methods->at(YBRmap, (1 + col * 2), (1 + row * 2));
 
             ybrTemp1->y = inverseDCT(1, reducedTemp.a,
                                         reducedTemp.b,
@@ -205,21 +202,20 @@ extern A2 expand(A2 quantArray)
     return YBRmap;
 }
 
-// TODO: Should there be any tests for the dequantization of values?
 
 float dequantizeColorDifference(unsigned index)
 {
     return Arith_chroma_of_index(index);
 }
 
-float dequantizeAcoefficient(signed a)
+float dequantizeAcoefficient(unsigned a)
 {
-    return roundf(a / 511.0);
+    return (a / 511.0);
 }
 
 float dequantizeBCDcoefficient(signed coeff)
 {
-    return roundf(coeff / 50.0);
+    return (coeff / 50.0);
 }
 
 float inverseDCT(int y, float a, float b, float c, float d)
@@ -241,7 +237,6 @@ float inverseDCT(int y, float a, float b, float c, float d)
             break;
         default:
             fprintf(stderr, "Incorrect Y value chosen\n");
-            luminanceValue = -1.0;
             exit(EXIT_FAILURE);
             break;
     }
@@ -250,3 +245,4 @@ float inverseDCT(int y, float a, float b, float c, float d)
 }
 
 #undef A2
+

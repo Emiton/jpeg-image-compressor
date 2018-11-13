@@ -21,7 +21,13 @@ extern A2 scaledIntToFloat(Pnm_ppm img)
     A2 floatMap = methods->new(methods->width(pixmap), 
                                methods->height(pixmap), 
                                sizeof(struct rgb_float));
-   // int testWidth = Array2_width(floatMap);
+   if(h % 2 == 1)
+       h = h - 1;
+   
+   if(w % 2 == 1)
+       w = w - 1;
+
+    // int testWidth = Array2_width(floatMap);
    // printf("TESTWIDTH: %i\n", testWidth); 
     /* Get Pnm_rgb from original A2
      * Get rgb_float struct from output A2
@@ -105,7 +111,7 @@ extern A2 ybrFloatToRgbFloat(A2 ybrFloatMap)
             rgbFloatTemp->r = 1.0 * y + 0.0 * Pb + 1.402 * Pr;
             rgbFloatTemp->g = 1.0 * y - 0.344136 * Pb - 0.714136 * Pr;
             rgbFloatTemp->b = 1.0 * y + 1.772 * Pb + 0.0 * Pr;
-            printf("RGB FLOAT VALUES: R: %f, G: %f, B: %f\n", rgbFloatTemp->r, rgbFloatTemp->g, rgbFloatTemp->b);
+            //printf("RGB FLOAT VALUES: R: %f, G: %f, B: %f\n", rgbFloatTemp->r, rgbFloatTemp->g, rgbFloatTemp->b);
         }
     } 
     return rgbFloatMap;
@@ -137,7 +143,7 @@ extern A2 rgbFloatToScaledInt(A2 rgbFloatMap)
             intTemp->r = (int) roundf(((floatTemp->r) * denom));
             intTemp->g = (int) roundf(((floatTemp->g) * denom));
             intTemp->b = (int) roundf(((floatTemp->b) * denom));
-            printf("RGB SCALED INT  VALUES: R: %i, G: %i, B: %i\n", intTemp->r, intTemp->g, intTemp->b);
+            //printf("RGB SCALED INT  VALUES: R: %i, G: %i, B: %i\n", intTemp->r, intTemp->g, intTemp->b);
         }
     }
 
