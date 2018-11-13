@@ -10,7 +10,8 @@
 #define A2 A2Methods_Array2
 
 typedef struct quantizedValues {
-    signed a,b,c,d;
+    unsigned a;
+    signed b,c,d;
     unsigned avgPb, avgPr;
 }  *quantizedValues;
   

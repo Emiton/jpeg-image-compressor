@@ -55,7 +55,7 @@ extern void decompress(FILE *input)
     returnImg.denominator = 255;
     returnImg.pixels = scaledIntArrayD;
     returnImg.methods = methods;
-    
+//    (void)returnImg;    
     Pnm_ppmwrite(stdout, &returnImg);
 }
 #undef A2

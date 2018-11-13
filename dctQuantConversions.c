@@ -18,14 +18,15 @@
 
 float discreteCosineTransform(char coefficient, float y1, float y2, float y3, float y4);
 unsigned quantizeColorDifference(float chroma);
-signed quantizeAcoefficient(float coeff);
+unsigned quantizeAcoefficient(float coeff);
 signed quantizeBCDcoefficients(float coeff);
 float dequantizeColorDifference(unsigned index);
-float dequantizeAcoefficient(signed a);
+float dequantizeAcoefficient(unsigned a);
 float dequantizeBCDcoefficient(signed coeff);
 float inverseDCT(int y, float a, float b, float c, float d);
 extern A2 expand(A2 quantArray);
 
+const int MAX = 3;
 extern A2 reduce(A2 componentArray, int height, int width)
 {
     assert(componentArray);
@@ -38,6 +39,7 @@ extern A2 reduce(A2 componentArray, int height, int width)
                                ((methods->height(componentArray)) / blockSize),
                                sizeof(struct quantizedValues));
     
+    int count = 0;
     for(int row = 0; row < height; row+=2)
     {
         for(int col = 0; col < width; col+=2)
@@ -47,26 +49,61 @@ extern A2 reduce(A2 componentArray, int height, int width)
             ybr_float ybrTemp3 = (ybr_float) methods->at(componentArray, col, row + 1);
             ybr_float ybrTemp4 = (ybr_float) methods->at(componentArray, col + 1, row + 1 );
             
+            count++; 
             reducedValues reducedTemp;//TODO = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            /*
+            if(count < MAX){
+                printf("BEFORE [ Pix1 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp1->y, ybrTemp1->Pb, ybrTemp1->Pr);
+                printf("BEFORE [ Pix2 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp2->y, ybrTemp2->Pb, ybrTemp2->Pr);
+                printf("BEFORE [ Pix3 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp3->y, ybrTemp3->Pb, ybrTemp3->Pr);
+                printf("BEFORE [ Pix4 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp4->y, ybrTemp4->Pb, ybrTemp4->Pr);
+            }
+            */
             reducedTemp.avgPb = (ybrTemp1->Pb + ybrTemp2->Pb + ybrTemp3->Pb + ybrTemp4->Pb) / 4.0;
             reducedTemp.avgPr = (ybrTemp1->Pr + ybrTemp2->Pr + ybrTemp3->Pr + ybrTemp4->Pr) / 4.0;
+            /*
+            if(count < MAX){
+                printf("Pb and Pr have been averaged.\n");
+                printf("AFTER [ Pix1 --  Y: %f, Averaged Pr: %f, Averaged Pb: %f\n", ybrTemp1->y, reducedTemp.avgPb, reducedTemp.avgPr);
+            }
+            */
             float y1 = ybrTemp1->y;
             float y2 = ybrTemp2->y;
             float y3 = ybrTemp3->y;
             float y4 = ybrTemp4->y;
-
+            
+            //if(count < MAX
             reducedTemp.a = discreteCosineTransform('a', y1, y2, y3, y4);
             reducedTemp.b = discreteCosineTransform('b', y1, y2, y3, y4);
             reducedTemp.c = discreteCosineTransform('c', y1, y2, y3, y4);
             reducedTemp.d = discreteCosineTransform('d', y1, y2, y3, y4);
+/*            
+            if(count < MAX){
+                printf("Pixel #%i:\n", count);
+                printf("A: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.a, y4, y3, y2, y1);
+                printf("B: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.b, y4, y3, y2, y1);
+                printf("C: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.c, y4, y3, y2, y1);
+                printf("D: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.d, y4, y3, y2, y1);
             
-            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col / blockSize, row / blockSize);
+
+
+ 
+            }*/
+            quantizedValues quantTemp = (quantizedValues) methods->at(quantMap,(col / blockSize),(row / blockSize));
             quantTemp->avgPb = quantizeColorDifference(reducedTemp.avgPb);
             quantTemp->avgPr = quantizeColorDifference(reducedTemp.avgPr);
             quantTemp->a = quantizeAcoefficient(reducedTemp.a);
             quantTemp->b = quantizeBCDcoefficients(reducedTemp.b);
             quantTemp->c = quantizeBCDcoefficients(reducedTemp.c);
             quantTemp->d = quantizeBCDcoefficients(reducedTemp.d);
+            /*  
+            if(count < MAX)
+            {
+                printf("Reduced Temp -- A: %f, B: %f, C: %f, D: %f, AvgPb: %f, AvgPr: %f\n", reducedTemp.a, reducedTemp.b, reducedTemp.c, reducedTemp.d, reducedTemp.avgPb, reducedTemp.avgPr);
+                printf("QuantT Temp --A: %d, B: %d, C: %d, D: %d, AvgPb(index): %u, AvgPr(index): %u\n", quantTemp->a, quantTemp->b, quantTemp->c, quantTemp->d, quantTemp->avgPb, quantTemp->avgPr);
+
+            }
+            */
             //TODO: Is a also of type signed?
 
             // TODO: create int array with values [-15 to 15] 
@@ -87,20 +124,23 @@ float discreteCosineTransform(char coefficient, float y1, float y2, float y3, fl
     switch(coefficient) 
     {
         case 'a': 
-            computedCoefficient = (y4 + y3 + y2 + y1) / 4.0;
+            computedCoefficient = (y4 + y3 + y2 + y1) / 4.0; 
+           // printf("computed Coefficient A:%f\n", computedCoefficient);
             break;
         case 'b': 
             computedCoefficient = (y4 + y3 - y2 - y1) / 4.0;
+           // printf("computed Coefficient B:%f\n", computedCoefficient);
             break;
         case 'c': 
             computedCoefficient = (y4 - y3 + y2 - y1) / 4.0;
+           // printf("computed Coefficient C:%f\n", computedCoefficient);
             break;
         case 'd': 
             computedCoefficient = (y4 - y3 - y2 + y1) / 4.0;
+           // printf("computed Coefficient D:%f\n", computedCoefficient);
             break;
         default:
             fprintf(stderr, "Incorrect Coefficient\n");
-            computedCoefficient = -1.0;
             exit(EXIT_FAILURE);
             break;
     }
@@ -122,7 +162,7 @@ unsigned quantizeColorDifference(float chroma)
     return Arith_index_of_chroma(chroma); 
 }
 
-signed quantizeAcoefficient(float coeff)
+unsigned quantizeAcoefficient(float coeff)
 {
     // 2^9 - 1 = 511, based on number of bits used to hold 'a'
     return roundf(coeff * 511.0);
@@ -138,7 +178,8 @@ signed quantizeBCDcoefficients(float coeff)
    {
        coeff = -0.3;
    }
-   return roundf(coeff * 50.0); 
+   
+   return roundf(coeff * 50.0);
 }
 
 extern A2 expand(A2 quantArray)
@@ -147,7 +188,9 @@ extern A2 expand(A2 quantArray)
     int height = Array2_height(quantArray);
     int width = Array2_width(quantArray);
     A2Methods_T methods = array2_methods_plain;
-    A2 YBRmap = methods->new(width * 2 , height * 2, sizeof(struct ybr_float));
+    A2 YBRmap = methods->new((width * 2) , (height * 2), sizeof(struct ybr_float));
+    
+    int count = 0;
     for(int row = 0; row < height; row ++)
     {
         for(int col = 0; col < width; col ++)
@@ -161,12 +204,22 @@ extern A2 expand(A2 quantArray)
             reducedTemp.d = dequantizeBCDcoefficient(incomingValues->d);
             reducedTemp.avgPb = dequantizeColorDifference(incomingValues->avgPb);
             reducedTemp.avgPr = dequantizeColorDifference(incomingValues->avgPr);
-
+            
+            count++;
+            
+            /*
+            if(count < MAX*2){     
+               printf("QuantT Temp --A: %d, B: %d, C: %d, D: %d, AvgPb(index): %u, AvgPr(index): %u\n", incomingValues->a, incomingValues->b, incomingValues->c, incomingValues->d, incomingValues->avgPb, incomingValues->avgPr);
+             
+                printf("Reduced Temp -- A: %f, B: %f, C: %f, D: %f, AvgPb: %f, AvgPr: %f\n", reducedTemp.a, reducedTemp.b,     reducedTemp.c, reducedTemp.d, reducedTemp.avgPb, reducedTemp.avgPr);
+             
+            }
+            */
             // TODO: Is this the correct ordering?
-            ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, col * 2, row * 2);
-            ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, 1 + col * 2, row * 2);
-            ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, col * 2, 1 + row * 2);
-            ybr_float ybrTemp4 = (ybr_float) methods->at(YBRmap, 1 + col * 2, 1 + row * 2);
+            ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, (col * 2), (row * 2));
+            ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, (1 + col * 2), (row * 2));
+            ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, (col * 2), (1 + row * 2));
+            ybr_float ybrTemp4 = (ybr_float) methods->at(YBRmap, (1 + col * 2), (1 + row * 2));
 
             ybrTemp1->y = inverseDCT(1, reducedTemp.a,
                                         reducedTemp.b,
@@ -212,14 +265,14 @@ float dequantizeColorDifference(unsigned index)
     return Arith_chroma_of_index(index);
 }
 
-float dequantizeAcoefficient(signed a)
+float dequantizeAcoefficient(unsigned a)
 {
-    return roundf(a / 511.0);
+    return (a / 511.0);
 }
 
 float dequantizeBCDcoefficient(signed coeff)
 {
-    return roundf(coeff / 50.0);
+    return (coeff / 50.0);
 }
 
 float inverseDCT(int y, float a, float b, float c, float d)
@@ -241,7 +294,6 @@ float inverseDCT(int y, float a, float b, float c, float d)
             break;
         default:
             fprintf(stderr, "Incorrect Y value chosen\n");
-            luminanceValue = -1.0;
             exit(EXIT_FAILURE);
             break;
     }
@@ -250,3 +302,4 @@ float inverseDCT(int y, float a, float b, float c, float d)
 }
 
 #undef A2
+
