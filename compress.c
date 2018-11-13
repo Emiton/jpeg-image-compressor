@@ -4,10 +4,9 @@
 #include <a2plain.h>
 #include <a2methods.h>
 #include "dctQuantConversions.h"
-
+#include <bitpack.h>
 #define A2 A2Methods_Array2
 
-// TODO: Trim image
 extern void compress(FILE *input)
 {
     A2Methods_T methods = array2_methods_plain;
@@ -23,26 +22,24 @@ extern void compress(FILE *input)
         w = w - 1;
     }
 
-    A2 rgbFloatArray = scaledIntToFloat(img);
-    A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
-    A2 quantizedArray = reduce(ybrFloatArray, h, w);
+    A2 rgbFloatArray = scaledIntToFloat(img); // rgb scaled int to rgb float
+    A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w); // rgb float to ybr
+    A2 quantizedArray = reduce(ybrFloatArray, h, w); // ybr to quantize
+    //packing
     (void) quantizedArray;
 }
-/*
-extern void decompress(FILE *input)
-{
-   // A2Methods_T methods = array2_methods_plain;
-   // A2 ybrFloatArray = expand((void) input;     
-   (void) input;
-}
-*/
+
 extern void decompress(FILE *input)
 {    
     A2Methods_T methods = array2_methods_plain;
     Pnm_ppm img = Pnm_ppmread(input, methods);
     int h = img->height;
     int w = img->width;
-    // stage 1 compress
+
+    A2 ybrFloatArray = expand(quantizedArray); //quantize to ybr
+    A2 rgbFloatArray = ybrFloatToRgbFloat(ybrFloatArray); // ybr to rgb float
+    A2 scaledIntArray = rgbFloatToScaledInt(rgbFloatArray); // rbg float to rgb scaled int
+/*    // stage 1 compress
     A2 rgbFloatArrayC = scaledIntToFloat(img); 
     // stage 2 compress
     A2 ybrFloatArrayC = rgbFloatToYbrFloat(rgbFloatArrayC, h, w);    
@@ -56,7 +53,7 @@ extern void decompress(FILE *input)
     A2 rgbFloatArrayD = ybrFloatToRgbFloat(ybrFloatArrayD);
     // stage 1 decompress
     A2 scaledIntArrayD = rgbFloatToScaledInt(rgbFloatArrayD);
-    
+*/    
     struct Pnm_ppm returnImg;
     returnImg.width = w;
     returnImg.height = h;
