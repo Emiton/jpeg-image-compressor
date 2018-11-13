@@ -45,7 +45,7 @@ case $link in
     all|image) $CC $FLAGS $LFLAGS -o image image.o compress.o                  \
                                      rgbComponentConversions.o                 \
                                      dctQuantConversions.o array2.o a2plain.o  \
-                                     $LIBS 
+                                     packing.o bitpack.o $LIBS 
                  linked=yes ;;
 esac
 

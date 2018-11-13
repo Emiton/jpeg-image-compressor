@@ -12,3 +12,4 @@
 extern A2 pack(A2 quantMap);
 extern A2 unpack(A2 wordMap);
 #undef A2
+#endif

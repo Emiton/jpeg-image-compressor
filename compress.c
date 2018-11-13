@@ -4,9 +4,10 @@
 #include <a2plain.h>
 #include <a2methods.h>
 #include "dctQuantConversions.h"
+#include "packing.h"
 
 #define A2 A2Methods_Array2
-
+void roundTripTesting(Pnm_ppm img, int h, int w);
 // TODO: Trim image
 extern void compress(FILE *input)
 {
@@ -26,8 +27,9 @@ extern void compress(FILE *input)
     A2 rgbFloatArray = scaledIntToFloat(img);
     A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
     A2 quantizedArray = reduce(ybrFloatArray, h, w);
-    A2 wordMap = packing(quantizedArray);
-    
+    A2 wordMap = pack(quantizedArray);
+    (void) wordMap;
+/*    
     for(int row = 0; row  < height / 2; row++){
         for(int col = 0; col < width / 2; col++)
         {
@@ -40,7 +42,7 @@ extern void compress(FILE *input)
             putchar(Bitpack_getu(*packed_word, 4, 0));
         }
     } 
-    
+*/    
 }
 /*
 extern void decompress(FILE *input)
@@ -56,7 +58,9 @@ extern void decompress(FILE *input)
     Pnm_ppm img = Pnm_ppmread(input, methods);
     int h = img->height;
     int w = img->width;
-     
+    
+/* 
+    // stage 4 decompress 
     A2 quantizedArray = unpack(wordMap);
     // stage 3 decompress
     A2 ybrFloatArray = expand(quantizedArray);
@@ -69,9 +73,43 @@ extern void decompress(FILE *input)
     returnImg.width = w;
     returnImg.height = h;
     returnImg.denominator = 255;
-    returnImg.pixels = scaledIntArray;
+    returnImg.pixels = scaledIntArrayD;
     returnImg.methods = methods;
 //    (void)returnImg;    
+    Pnm_ppmwrite(stdout, &returnImg);
+*/
+    roundTripTesting(img, h, w);
+    }
+
+void roundTripTesting(Pnm_ppm img, int h, int w)
+{
+    // ROUND TRIP TESTING
+    A2Methods_T methods = array2_methods_plain;
+    // stage 1 compress
+    A2 rgbFloatArrayC = scaledIntToFloat(img);
+    // stage 2 compress
+    A2 ybrFloatArrayC = rgbFloatToYbrFloat(rgbFloatArrayC, h, w);
+    // stage 3 compress
+    A2 quantizedArrayC = reduce(ybrFloatArrayC, h, w);
+    // stage 4 compress
+    A2 wordMapC = pack(quantizedArrayC);
+    
+    // stage 4 decompress 
+    A2 quantizedArrayD = unpack(wordMapC);
+    // stage 3 decompress
+    A2 ybrFloatArrayD = expand(quantizedArrayD);
+    // stage 2 decompress
+    A2 rgbFloatArrayD = ybrFloatToRgbFloat(ybrFloatArrayD);
+    // stage 1 decompress
+    A2 scaledIntArrayD = rgbFloatToScaledInt(rgbFloatArrayD);
+    
+    struct Pnm_ppm returnImg;
+    returnImg.width = w;
+    returnImg.height = h;
+    returnImg.denominator = 255;
+    returnImg.pixels = scaledIntArrayD;
+    returnImg.methods = methods;
+   
     Pnm_ppmwrite(stdout, &returnImg);
 }
 #undef A2

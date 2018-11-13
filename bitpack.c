@@ -1,20 +1,8 @@
 #include "bitpack.h"
 #include <assert.h> // TODO: quotes or angle brackets??
+#include <stdio.h>
 
 Except_T Bitpack_Overflow = { "Overflow packing bits" };
-
-static inline unsignedShift(uint64_t word, unsigned fWidth)
-{
-    assert(fWidth <= 64);
-    if(fWidth == 64)
-    {
-        return 0;
-    }
-    return word << fWidth;
-}
-static inline unsignedRightShift(){}
-static inline signedLeftShift(){}
-static inline signedRightShift(){}
 
 bool Bitpack_fitsu(uint64_t n, unsigned width)
 {
@@ -24,8 +12,8 @@ bool Bitpack_fitsu(uint64_t n, unsigned width)
     {
         return false;
     }
-
-    if ((1 << width) - 1 < n)
+    
+    if ((uint64_t)(1 << width) - 1 < n)
     {
         return false;
     }
@@ -55,11 +43,11 @@ uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
     assert(shift <= 64);
     if(shift == 64)
     {
-        word = 0
+        word = 0;
     }
     else
     {
-        word << shift;
+        word = word << shift;
     }
     shift = 64 - width;
     assert(shift <= 64);
@@ -69,16 +57,16 @@ uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
     }
     else
     {
-    word >> shift;
+    word = word >> shift;
     }
     return word;
+
 }
 
 int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
 {
     assert(width <= 64);
     assert(width + lsb <= 64);
-    return shift_rights(shift_lefts(word, WORD_SIZE - (lsb + width)), (WORD_SIZE -width));
 
     unsigned shift = 64 - (width + lsb);
     assert(shift <= 64);
@@ -88,7 +76,7 @@ int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
     }
     else
     {
-        word << shift; // TODO: uint64_t vs int64_t
+        word = word << shift; // TODO: uint64_t vs int64_t
     }
     shift = 64 - width;
     assert(shift <= 64);
@@ -98,7 +86,7 @@ int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
     }
     else
     {
-        word >> shift; // TODO: uint64_t vs int64_t
+        word = word >> shift; // TODO: uint64_t vs int64_t
     }
     return word;
 }
@@ -190,26 +178,28 @@ uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value
     }
     uint64_t mask = ~rightShift;
 
-   unsigned vShift = 64 - width;
-   uint64_t newVal;
-   assert(vShift <= 64);
-   if (vShift == 64)
-   {
-       newVal = 0;
-   }
-   else
-   {
-       newVal = value << vShift;
-   }
+    unsigned vShift = 64 - width;
+    uint64_t newVal;
+    assert(vShift <= 64);
+    if (vShift == 64)
+    {
+        newVal = 0;
+    }
+    else
+    {
+        newVal = value << vShift;
+    }
 
-   vShift = 64 - (width + lsb);
-   assert(vShift <= 64);
-   if (vShift == 64)
-   {
-       newVal = 0;
-   }
+    vShift = 64 - (width + lsb);
+    assert(vShift <= 64);
+    if (vShift == 64)
+    {
+        newVal = 0;
+    }
     else
     {
         newVal = newVal >> vShift;
     }
+
+    return (word && mask) | newVal;
 }

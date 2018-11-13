@@ -4,7 +4,10 @@
 #include <a2plain.h>
 #include <a2methods.h>
 #include <assert.h>
+#include <inttypes.h>
+#include "packing.h"
 
+#define A2 A2Methods_Array2
 extern A2 pack(A2 quantMap);
 extern A2 unpack(A2 wordMap);
 
@@ -29,15 +32,16 @@ extern A2 pack(A2 quantMap)
             signed b = quantTemp->b;
             signed c = quantTemp->c;
             signed d = quantTemp->d;
-            unsigned Pb = quantTemp->Pb;
-            unsigned Pr = quantTemp->Pr;
+            unsigned avgPb = quantTemp->avgPb;
+            unsigned avgPr = quantTemp->avgPr;
              
             word = Bitpack_newu(word, 9, 23, a);
             word = Bitpack_news(word, 5, 18, b);
             word = Bitpack_news(word, 5, 13, c);
             word = Bitpack_news(word, 5, 8, d);
-            word = Bitpack_newu(word, 4, 4, Pb);
-            word = Bitpack_newu(word, 4, 0, Pr);
+            word = Bitpack_newu(word, 4, 4, avgPb);
+            word = Bitpack_newu(word, 4, 0, avgPr);
+            //printf("%" PRIu64 "\n", word);
         }
     }
     return wordMap;    
@@ -63,12 +67,12 @@ extern A2 unpack(A2 wordMap)
            
             quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col, row);
 
-            quantizedTemp->a = Bitpack_getu(word, 9, 23);
-            quantizedTemp->b = Bitpack_gets(word, 5, 18);
-            quantizedTemp->c = Bitpack_gets(word, 5, 13);
-            quantizedTemp->d = Bitpack_gets(word, 5, 8);
-            quantizedTemp->Pb = Bitpack_getu(word, 4, 4);
-            quantizedTemp->Pr = Bitpack_getu(word, 4, 0); 
+            quantTemp->a = Bitpack_getu(word, 9, 23);
+            quantTemp->b = Bitpack_gets(word, 5, 18);
+            quantTemp->c = Bitpack_gets(word, 5, 13);
+            quantTemp->d = Bitpack_gets(word, 5, 8);
+            quantTemp->avgPb = Bitpack_getu(word, 4, 4);
+            quantTemp->avgPr = Bitpack_getu(word, 4, 0); 
         }
     }        
 
@@ -76,5 +80,6 @@ extern A2 unpack(A2 wordMap)
             
 }
 
+#undef A2
 
 

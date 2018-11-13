@@ -1,3 +1,6 @@
+#ifndef _DCTQUANTCONVERSIONSH_
+#define _DCTQUANTCONVERSIONSH_
+
 #include <assert.h>
 #include <a2plain.h>
 #include <a2methods.h>
@@ -25,3 +28,4 @@ float discreteCosineTransform(char coefficient, float y1, float y2, float y3, fl
 unsigned quantizeColorDifference(float chroma);
 extern A2 expand(A2 quantArray);
 #undef A2
+#endif
