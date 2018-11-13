@@ -22,7 +22,7 @@ int main()
             {
                 // 1000 random trials
                 // set values of other parameters
-                check_laws(...);
+                check_laws(word, w, lsb, trial, w * 2, lsb * 2);
             }
         }
     }
