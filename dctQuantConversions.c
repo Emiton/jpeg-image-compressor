@@ -26,7 +26,6 @@ float dequantizeBCDcoefficient(signed coeff);
 float inverseDCT(int y, float a, float b, float c, float d);
 extern A2 expand(A2 quantArray);
 
-const int MAX = 3;
 extern A2 reduce(A2 componentArray, int height, int width)
 {
     assert(componentArray);
@@ -39,7 +38,6 @@ extern A2 reduce(A2 componentArray, int height, int width)
                                ((methods->height(componentArray)) / blockSize),
                                sizeof(struct quantizedValues));
     
-    int count = 0;
     for(int row = 0; row < height; row+=2)
     {
         for(int col = 0; col < width; col+=2)
@@ -49,70 +47,28 @@ extern A2 reduce(A2 componentArray, int height, int width)
             ybr_float ybrTemp3 = (ybr_float) methods->at(componentArray, col, row + 1);
             ybr_float ybrTemp4 = (ybr_float) methods->at(componentArray, col + 1, row + 1 );
             
-            count++; 
-            reducedValues reducedTemp;//TODO = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-            /*
-            if(count < MAX){
-                printf("BEFORE [ Pix1 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp1->y, ybrTemp1->Pb, ybrTemp1->Pr);
-                printf("BEFORE [ Pix2 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp2->y, ybrTemp2->Pb, ybrTemp2->Pr);
-                printf("BEFORE [ Pix3 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp3->y, ybrTemp3->Pb, ybrTemp3->Pr);
-                printf("BEFORE [ Pix4 --  Y: %f, Pr: %f, Pb: %f\n", ybrTemp4->y, ybrTemp4->Pb, ybrTemp4->Pr);
-            }
-            */
+            reducedValues reducedTemp;
             reducedTemp.avgPb = (ybrTemp1->Pb + ybrTemp2->Pb + ybrTemp3->Pb + ybrTemp4->Pb) / 4.0;
             reducedTemp.avgPr = (ybrTemp1->Pr + ybrTemp2->Pr + ybrTemp3->Pr + ybrTemp4->Pr) / 4.0;
-            /*
-            if(count < MAX){
-                printf("Pb and Pr have been averaged.\n");
-                printf("AFTER [ Pix1 --  Y: %f, Averaged Pr: %f, Averaged Pb: %f\n", ybrTemp1->y, reducedTemp.avgPb, reducedTemp.avgPr);
-            }
-            */
             float y1 = ybrTemp1->y;
             float y2 = ybrTemp2->y;
             float y3 = ybrTemp3->y;
             float y4 = ybrTemp4->y;
             
-            //if(count < MAX
             reducedTemp.a = discreteCosineTransform('a', y1, y2, y3, y4);
             reducedTemp.b = discreteCosineTransform('b', y1, y2, y3, y4);
             reducedTemp.c = discreteCosineTransform('c', y1, y2, y3, y4);
             reducedTemp.d = discreteCosineTransform('d', y1, y2, y3, y4);
-/*            
-            if(count < MAX){
-                printf("Pixel #%i:\n", count);
-                printf("A: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.a, y4, y3, y2, y1);
-                printf("B: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.b, y4, y3, y2, y1);
-                printf("C: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.c, y4, y3, y2, y1);
-                printf("D: %f, with a Y4: %f, Y3: %f, Y2: %f, Y1: %f\n", reducedTemp.d, y4, y3, y2, y1);
-            
-
-
  
-            }*/
             quantizedValues quantTemp = (quantizedValues) methods->at(quantMap,(col / blockSize),(row / blockSize));
+ 
             quantTemp->avgPb = quantizeColorDifference(reducedTemp.avgPb);
             quantTemp->avgPr = quantizeColorDifference(reducedTemp.avgPr);
             quantTemp->a = quantizeAcoefficient(reducedTemp.a);
             quantTemp->b = quantizeBCDcoefficients(reducedTemp.b);
             quantTemp->c = quantizeBCDcoefficients(reducedTemp.c);
             quantTemp->d = quantizeBCDcoefficients(reducedTemp.d);
-            /*  
-            if(count < MAX)
-            {
-                printf("Reduced Temp -- A: %f, B: %f, C: %f, D: %f, AvgPb: %f, AvgPr: %f\n", reducedTemp.a, reducedTemp.b, reducedTemp.c, reducedTemp.d, reducedTemp.avgPb, reducedTemp.avgPr);
-                printf("QuantT Temp --A: %d, B: %d, C: %d, D: %d, AvgPb(index): %u, AvgPr(index): %u\n", quantTemp->a, quantTemp->b, quantTemp->c, quantTemp->d, quantTemp->avgPb, quantTemp->avgPr);
-
-            }
-            */
-            //TODO: Is a also of type signed?
-
-            // TODO: create int array with values [-15 to 15] 
-            //      multiply b, c, and d each by 50
-            //      see which value within the array that it comes closest to
-            //      TODO: // store the index value closest to b, c, and d OR actual value
-            //      convert this integer to a signed binary value
-            //      store in quantTemp as a 5 bit signed binary value
-        }
+       }
     }
     
     return quantMap;
@@ -190,7 +146,6 @@ extern A2 expand(A2 quantArray)
     A2Methods_T methods = array2_methods_plain;
     A2 YBRmap = methods->new((width * 2) , (height * 2), sizeof(struct ybr_float));
     
-    int count = 0;
     for(int row = 0; row < height; row ++)
     {
         for(int col = 0; col < width; col ++)
@@ -205,17 +160,6 @@ extern A2 expand(A2 quantArray)
             reducedTemp.avgPb = dequantizeColorDifference(incomingValues->avgPb);
             reducedTemp.avgPr = dequantizeColorDifference(incomingValues->avgPr);
             
-            count++;
-            
-            /*
-            if(count < MAX*2){     
-               printf("QuantT Temp --A: %d, B: %d, C: %d, D: %d, AvgPb(index): %u, AvgPr(index): %u\n", incomingValues->a, incomingValues->b, incomingValues->c, incomingValues->d, incomingValues->avgPb, incomingValues->avgPr);
-             
-                printf("Reduced Temp -- A: %f, B: %f, C: %f, D: %f, AvgPb: %f, AvgPr: %f\n", reducedTemp.a, reducedTemp.b,     reducedTemp.c, reducedTemp.d, reducedTemp.avgPb, reducedTemp.avgPr);
-             
-            }
-            */
-            // TODO: Is this the correct ordering?
             ybr_float ybrTemp1 = (ybr_float) methods->at(YBRmap, (col * 2), (row * 2));
             ybr_float ybrTemp2 = (ybr_float) methods->at(YBRmap, (1 + col * 2), (row * 2));
             ybr_float ybrTemp3 = (ybr_float) methods->at(YBRmap, (col * 2), (1 + row * 2));
@@ -258,7 +202,6 @@ extern A2 expand(A2 quantArray)
     return YBRmap;
 }
 
-// TODO: Should there be any tests for the dequantization of values?
 
 float dequantizeColorDifference(unsigned index)
 {

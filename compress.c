@@ -14,7 +14,15 @@ extern void compress(FILE *input)
     Pnm_ppm img = Pnm_ppmread(input, methods);
     int h = img->height;
     int w = img->width;
-     
+    if(h % 2 == 1)
+    {
+        h = h - 1;
+    } 
+    if(w % 2 == 1)
+    {
+        w = w - 1;
+    }
+
     A2 rgbFloatArray = scaledIntToFloat(img);
     A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
     A2 quantizedArray = reduce(ybrFloatArray, h, w);

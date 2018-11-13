@@ -112,6 +112,7 @@ double compare(Pnm_ppm image1, Pnm_ppm image2, A2Methods_T methods)
 
     double total = sum / (3 * width * height);
     total = sqrt(total);
+    //return total/255...this would be the same as noah's approach
     return total;
 }
 

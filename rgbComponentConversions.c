@@ -21,7 +21,13 @@ extern A2 scaledIntToFloat(Pnm_ppm img)
     A2 floatMap = methods->new(methods->width(pixmap), 
                                methods->height(pixmap), 
                                sizeof(struct rgb_float));
-   // int testWidth = Array2_width(floatMap);
+   if(h % 2 == 1)
+       h = h - 1;
+   
+   if(w % 2 == 1)
+       w = w - 1;
+
+    // int testWidth = Array2_width(floatMap);
    // printf("TESTWIDTH: %i\n", testWidth); 
     /* Get Pnm_rgb from original A2
      * Get rgb_float struct from output A2
