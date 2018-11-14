@@ -8,7 +8,7 @@
 // Changes: compress411->compress, compress40->compress, decompress40->decompress
 // TODO: Throw an error if too many images are given as input
 
-static void (*compress_or_decompress)(FILE *input) = decompress;
+static void (*compress_or_decompress)(FILE *input) = compress;
 
 int main(int argc, char *argv[]) {
   int i;
