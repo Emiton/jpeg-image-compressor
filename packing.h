@@ -10,7 +10,8 @@
 #define A2 A2Methods_Array2
 
 A2 pack(A2 quantMap);
-extern A2 putWord(A2 quantMap);
+extern void putWord(A2 quantMap, int height, int width);
+extern A2 getProcessedWord(FILE *input, int h, int w);
 extern A2 unpack(A2 wordMap);
 #undef A2
 #endif

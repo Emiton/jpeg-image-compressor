@@ -7,7 +7,7 @@
 #include "packing.h"
 
 #define A2 A2Methods_Array2
-void roundTripTesting(FILE *input, int h, int w);
+void roundTripTesting(Pnm_ppm img, FILE *input, int h, int w);
 // TODO: Trim image
 // TODO: When printing, print curren
 extern void compress(FILE *input)
@@ -28,8 +28,8 @@ extern void compress(FILE *input)
     A2 rgbFloatArray = scaledIntToFloat(img);
     A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
     A2 quantizedArray = reduce(ybrFloatArray, h, w);
-    A2 wordMap = putWord(quantizedArray);
-    (void) wordMap;
+    putWord(quantizedArray, h, w);
+    
 /*    
     for(int row = 0; row  < height / 2; row++){
         for(int col = 0; col < width / 2; col++)
@@ -57,8 +57,10 @@ extern void decompress(FILE *input)
 {    
     A2Methods_T methods = array2_methods_plain;
     Pnm_ppm img = Pnm_ppmread(input, methods);
-    int h = img->height;
-    int w = img->width;
+    //int h = img->height;
+    //int w = img->width;
+    
+    // DECOMPRESS
     unsigned height, width;
     int read = fscanf(input, "Compressed image format 2\\n%u %u", &width, &height);
     assert(read == 2);
@@ -84,7 +86,7 @@ extern void decompress(FILE *input)
     Pnm_ppmwrite(stdout, &returnImg);
 */
     // height and width of original uncompressed image
-    roundTripTesting(img, &input, height, width);
+    roundTripTesting(img, input, height, width);
     }
 
     unsigned width;
@@ -99,10 +101,10 @@ void roundTripTesting(Pnm_ppm img, FILE *input, int h, int w)
     // stage 3 compress
     A2 quantizedArrayC = reduce(ybrFloatArrayC, h, w);
     // stage 4 compress
-    putWord(quantizedArrayC);
-    
+    putWord(quantizedArrayC, h, w);
+    /*
     // stage 5 decompress - extra step to get file
-    A2 wordMapC = getProcessedWord(input); 
+    A2 wordMapC = getProcessedWord(input, h, w); 
     // stage 4 decompress 
     A2 quantizedArrayD = unpack(wordMapC);
     // stage 3 decompress
@@ -111,7 +113,7 @@ void roundTripTesting(Pnm_ppm img, FILE *input, int h, int w)
     A2 rgbFloatArrayD = ybrFloatToRgbFloat(ybrFloatArrayD);
     // stage 1 decompress
     A2 scaledIntArrayD = rgbFloatToScaledInt(rgbFloatArrayD);
-    
+    */
     struct Pnm_ppm returnImg;
     returnImg.width = w;
     returnImg.height = h;

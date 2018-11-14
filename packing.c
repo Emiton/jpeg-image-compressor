@@ -64,12 +64,12 @@ extern void putWord(A2 quantMap, int height, int width)
 {
     A2Methods_T methods = array2_methods_plain;
     A2 processedWords = pack(quantMap);
-    int height = methods->height(processedWords);
-    int width = methods->width(processedWords);
+    int h = methods->height(processedWords);
+    int w = methods->width(processedWords);
     printf("Compressed image format 2\\n%u %u", height, width);
-    for(int row = 0; row < height; row++)
+    for(int row = 0; row < h; row++)
     {
-        for(int col = 0; col < width; col++)
+        for(int col = 0; col < w; col++)
         {
             uint64_t *word = Array2_at(processedWords, col, row);
             putchar(Bitpack_getu(*word, 8, 24));
