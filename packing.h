@@ -9,7 +9,8 @@
 #include <assert.h>
 #define A2 A2Methods_Array2
 
-extern A2 pack(A2 quantMap);
+A2 pack(A2 quantMap);
+extern A2 putWord(A2 quantMap);
 extern A2 unpack(A2 wordMap);
 #undef A2
 #endif

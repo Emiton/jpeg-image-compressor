@@ -7,8 +7,9 @@
 #include "packing.h"
 
 #define A2 A2Methods_Array2
-void roundTripTesting(Pnm_ppm img, int h, int w);
+void roundTripTesting(FILE *input, int h, int w);
 // TODO: Trim image
+// TODO: When printing, print curren
 extern void compress(FILE *input)
 {
     A2Methods_T methods = array2_methods_plain;
@@ -27,7 +28,7 @@ extern void compress(FILE *input)
     A2 rgbFloatArray = scaledIntToFloat(img);
     A2 ybrFloatArray = rgbFloatToYbrFloat(rgbFloatArray, h, w);
     A2 quantizedArray = reduce(ybrFloatArray, h, w);
-    A2 wordMap = pack(quantizedArray);
+    A2 wordMap = putWord(quantizedArray);
     (void) wordMap;
 /*    
     for(int row = 0; row  < height / 2; row++){
@@ -58,7 +59,11 @@ extern void decompress(FILE *input)
     Pnm_ppm img = Pnm_ppmread(input, methods);
     int h = img->height;
     int w = img->width;
-    
+    unsigned height, width;
+    int read = fscanf(input, "Compressed image format 2\\n%u %u", &width, &height);
+    assert(read == 2);
+    int c = getc(input);
+    assert(c == '\n'); 
 /* 
     // stage 4 decompress 
     A2 quantizedArray = unpack(wordMap);
@@ -78,10 +83,12 @@ extern void decompress(FILE *input)
 //    (void)returnImg;    
     Pnm_ppmwrite(stdout, &returnImg);
 */
-    roundTripTesting(img, h, w);
+    // height and width of original uncompressed image
+    roundTripTesting(img, &input, height, width);
     }
 
-void roundTripTesting(Pnm_ppm img, int h, int w)
+    unsigned width;
+void roundTripTesting(Pnm_ppm img, FILE *input, int h, int w)
 {
     // ROUND TRIP TESTING
     A2Methods_T methods = array2_methods_plain;
@@ -92,8 +99,10 @@ void roundTripTesting(Pnm_ppm img, int h, int w)
     // stage 3 compress
     A2 quantizedArrayC = reduce(ybrFloatArrayC, h, w);
     // stage 4 compress
-    A2 wordMapC = pack(quantizedArrayC);
+    putWord(quantizedArrayC);
     
+    // stage 5 decompress - extra step to get file
+    A2 wordMapC = getProcessedWord(input); 
     // stage 4 decompress 
     A2 quantizedArrayD = unpack(wordMapC);
     // stage 3 decompress

@@ -8,10 +8,13 @@
 #include "packing.h"
 
 #define A2 A2Methods_Array2
-extern A2 pack(A2 quantMap);
+A2 pack(A2 quantMap);
 extern A2 unpack(A2 wordMap);
+extern A2 getProcessedWord(FILE *input, int h, int w);
+extern void putWord(A2 quantMap, int height, int width);
 
-extern A2 pack(A2 quantMap)
+
+A2 pack(A2 quantMap)
 {
 
     assert(quantMap);
@@ -45,6 +48,8 @@ extern A2 pack(A2 quantMap)
             word = Bitpack_news(word, 5, 8, d);
             word = Bitpack_newu(word, 4, 4, avgPb);
             word = Bitpack_newu(word, 4, 0, avgPr);
+
+            
             if(count < 6){
                 printf("WORD @ [%i, %i]: ", col, row);
                 printf("%" PRIu64 "\n", word);
@@ -55,7 +60,25 @@ extern A2 pack(A2 quantMap)
             
 }
 
-
+extern void putWord(A2 quantMap, int height, int width)
+{
+    A2Methods_T methods = array2_methods_plain;
+    A2 processedWords = pack(quantMap);
+    int height = methods->height(processedWords);
+    int width = methods->width(processedWords);
+    printf("Compressed image format 2\\n%u %u", height, width);
+    for(int row = 0; row < height; row++)
+    {
+        for(int col = 0; col < width; col++)
+        {
+            uint64_t *word = Array2_at(processedWords, col, row);
+            putchar(Bitpack_getu(*word, 8, 24));
+            putchar(Bitpack_getu(*word, 8, 16));
+            putchar(Bitpack_getu(*word, 8, 8));
+            putchar(Bitpack_getu(*word, 8, 0));
+        }
+    }
+}
 extern A2 unpack(A2 wordMap)
 {
 
@@ -78,20 +101,24 @@ extern A2 unpack(A2 wordMap)
                 printf("%" PRIu64 "\n", word);
             }
             quantizedValues quantTemp = (quantizedValues) methods->at(quantMap, col, row);
-            /*
-            quantTemp->a = Bitpack_getu(word, 9, 23);
-            quantTemp->b = Bitpack_gets(word, 5, 18);
-            quantTemp->c = Bitpack_gets(word, 5, 13);
-            quantTemp->d = Bitpack_gets(word, 5, 8);
-            quantTemp->avgPb = Bitpack_getu(word, 4, 4);
-            quantTemp->avgPr = Bitpack_getu(word, 4, 0); 
-            */
+            
+            //BIG ENDIAN
+            quantTemp->a = (unsigned) Bitpack_getu(word, 9, 23); //returns a uint64
+            quantTemp->b = (signed) Bitpack_gets(word, 5, 18); //returns a signed int64
+            quantTemp->c = (signed) Bitpack_gets(word, 5, 13); //returns a signed int64
+            quantTemp->d = (signed) Bitpack_gets(word, 5, 8); // returns a signed int64
+            quantTemp->avgPb = (unsigned) Bitpack_getu(word, 4, 4);// returns a uint64
+            quantTemp->avgPr = (unsigned) Bitpack_getu(word, 4, 0); // returns a uint64
+            
+
+            /* TODO: LITTLE ENDIAN?
             quantTemp->avgPr = Bitpack_getu(word, 4, 0);
             quantTemp->avgPb = Bitpack_getu(word, 4, 4);
             quantTemp->d = Bitpack_gets(word, 5, 8);
             quantTemp->c = Bitpack_gets(word, 5, 13);
             quantTemp->b = Bitpack_gets(word, 5, 18);
             quantTemp->a = Bitpack_getu(word, 9, 23);
+            */
             count++;
             if(count < 6){
                 printf("DECOMPRESS QUANTTEMP VALUES [%i, %i] -- A: %u, B: %i, C: %i, D: %i, AvgPb: %u, AvgPr: %u\n", col, row, quantTemp->a, quantTemp->b, quantTemp->c, quantTemp->d, quantTemp->avgPb, quantTemp->avgPr);
@@ -103,6 +130,27 @@ extern A2 unpack(A2 wordMap)
             
 }
 
+// First stage in decompress, takes file input. Creates A2 wordMap
+extern A2 getProcessedWord(FILE *input, int height, int width)
+{
+    assert(input);
+    assert(height > 0);
+    assert(width > 0);
+    A2Methods_T methods = array2_methods_plain;
+    
+    A2 fileMap = methods->new(width, height, sizeof(uint64_t)); 
+    for(int row = 0; row < height; row++)
+    {
+        for(int col = 0; col < width; col++)
+        {
+            uint64_t cell = (uint64_t) methods->at(fileMap, col, row);
+            cell = Bitpack_newu(cell, 8, 24, getc(input));
+            cell = Bitpack_newu(cell, 8,16, getc(input));
+            cell = Bitpack_newu(cell, 8, 8, getc(input));
+            cell = Bitpack_newu(cell, 8, 0, getc(input));
+        }
+    }
+   return fileMap; 
+}
+
 #undef A2
-
-
