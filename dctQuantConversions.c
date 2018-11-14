@@ -37,7 +37,6 @@ extern A2 reduce(A2 componentArray, int height, int width)
     A2 quantMap = methods->new(((methods->width(componentArray)) / blockSize),
                                ((methods->height(componentArray)) / blockSize),
                                sizeof(struct quantizedValues));
-    int count = 0; 
     for(int row = 0; row < height; row+=2)
     {
         for(int col = 0; col < width; col+=2)

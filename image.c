@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h> // TODO: ask Noah why quotes were here first
+#include <assert.h> 
 #include "compress.h"
 
 // TODO: Note from Professor Daniels
