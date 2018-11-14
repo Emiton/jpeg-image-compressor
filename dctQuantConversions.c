@@ -68,10 +68,10 @@ extern A2 reduce(A2 componentArray, int height, int width)
             quantTemp->b = quantizeBCDcoefficients(reducedTemp.b);
             quantTemp->c = quantizeBCDcoefficients(reducedTemp.c);
             quantTemp->d = quantizeBCDcoefficients(reducedTemp.d);
-            if(count++ < -1)
-            {
-                printf("NOTPASSEDIN COMPRESS QUANTTEMP VALUES  [%i, %i] -- A: %u, B: %i, C: %i, D: %i, avgPb: %u, avgPr: %u\n", col, row, quantTemp->a, quantTemp->b, quantTemp->c, quantTemp->d, quantTemp->avgPr, quantTemp->avgPr);
-            }
+            //if(count++ < -1)
+            //{
+                //printf("NOTPASSEDIN COMPRESS QUANTTEMP VALUES  [%i, %i] -- A: %u, B: %i, C: %i, D: %i, avgPb: %u, avgPr: %u\n", col, row, quantTemp->a, quantTemp->b, quantTemp->c, quantTemp->d, quantTemp->avgPr, quantTemp->avgPr);
+            //}
         }
     }
     
