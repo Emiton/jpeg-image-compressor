@@ -15,10 +15,19 @@ up to stage 4, which is (stage 1) rgbInt to rgbFloat, (stage 2) rgbFloat to ybrF
 (stage 3) ybrFloat to reducedValues [averaged Pb and Pr, a, b, c, and d as floats], and (stage 4)
 reducedValues to quantizedValues [averaged Pb and Pr, a, b, c, and d as scaled integers].
 
-As it currently stands, our program will compile, but not successfully perform round trip
-testing for stage 5: packing the quantizedValues [averaged Pb and Pr, a, b, c, and d as scaled integers]
-into a 32-bit codeword. Currently our entire compression algorithm works, but our unpacking
-of 32-bit words is incorrect. Every time we compile and run the program, the unpacked word
-prints out different quantized values of a, b, c, d, avgPb, and avgPr.
+We chose to structure the program so that conversions between different data types
+were kept in the same file. This means that the conversions of data from RGB values 
+to component video were kept within the same. All functions that operated within
+this conversion was kept together. The same went for component video to quantized values
+and then quantized values to words. Compress and decompress are called from a file
+which does a small amount of image preprocessing before starting the converson process.
+Because the compress and decompress functions essentially accept the file input, we 
+chose to do the processing as soon as the file input is accepted. 
 
-We have spent 15 hours on the design document, 
+Currently the program can compress and decompress a file, but it will not decompress
+correctly. The difference as calculated by ppm is greater than .5, meaning that the
+values of the decompressed image is up to 50% different than that of the input image.
+Debugging this issue does not seem to be a major challenge, but unfortunately time is 
+not on our side and the solution must be submitted as is.
+
+We have spent 15 hours on the design document and 55 hours on programming arith. 
