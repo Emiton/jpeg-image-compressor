@@ -1,7 +1,6 @@
 Arith by Cameron LaFreniere and Emiton Alves
 
-We would like to acknowledge help given by Professor Daniels and Justin, one of
-our TAs.
+Help Received: Prof Daniels and TA Justin
 
 Currently, we have implemented round trip testing and have successfully
 converted RGB ints to RGB floats, RGB floats to YBR Floats, YBR Floats to
