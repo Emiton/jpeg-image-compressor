@@ -11,6 +11,7 @@
 
 typedef struct dequantizedValues *dequantizedValues;
 
+// Hold values after reversing quantization
 struct dequantizedValues {
     unsigned a;
     signed b,c,d;
