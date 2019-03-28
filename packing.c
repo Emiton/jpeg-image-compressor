@@ -23,7 +23,7 @@ A2 pack(A2 quantMap)
     int height = methods->height(quantMap);
     int width = methods->width(quantMap);
     A2 wordMap = methods->new(width, height, sizeof(uint64_t));
-//    int count = 0;
+    
     for(int row = 0; row < height; row++)
     {
         for(int col = 0; col < width; col++)
@@ -50,12 +50,6 @@ A2 pack(A2 quantMap)
             word = Bitpack_newu(word, 4, 4, avgPb);
             word = Bitpack_newu(word, 4, 0, avgPr);
 
-           /* 
-            if(count < 6){
-                printf("WORD @ [%i, %i]: ", col, row);
-                printf("%" PRIu64 "\n", word);
-            }
-            */
         }
     }
     return wordMap;    
