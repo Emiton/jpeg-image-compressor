@@ -8,7 +8,7 @@ averaged Pb and Pr Values with Discrete Cosine Transformations performed upon
 each YBR floats' Y values in a 2 by 2 block to arrive at a, b, c, and d floats.
 We have converted averaged Pb & Pr, a, b, c, and d to scaled integers.
 
- We implemented round trip testing of stage 1 to n (for example: stage 1 to stage 1 is
+We implemented round trip testing of stage 1 to n (for example: stage 1 to stage 1 is
 RGB scaled int to RGB float and then RGB float to RGB scaled int) and n to 1, with n
 being a given stage in the compression/decompression process. We successfully peformed
 up to stage 4, which is (stage 1) rgbInt to rgbFloat, (stage 2) rgbFloat to ybrFloat,
